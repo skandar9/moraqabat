@@ -2,7 +2,7 @@ A date as a string is less reliable than an object instance, e.g. a Carbon-insta
 A date as a string is less reliable than an object instance, e.g. a Carbon-instance. It's recommended to pass Carbon objects between classes instead of date strings. Rendering should be done in the display layer (templates):
 ## Contents
 
-[Single responsibility principle](#single-responsibility-principle)
+[Authentication](#authentication)
 
 [Fat models, skinny controllers](#fat-models-skinny-controllers)
 
@@ -38,45 +38,74 @@ A date as a string is less reliable than an object instance, e.g. a Carbon-insta
 
 [Other good practices](#other-good-practices)
 
-### **Single responsibility principle**
+### **authentication**
 
-A class and a method should have only one responsibility.
+1-Using Api routes: 
 
-Bad:
+routes\api.php:
 
 ```php
-public function getFullNameAttribute(): string
-{
-    if (auth()->user() && auth()->user()->hasRole('client') && auth()->user()->isVerified()) {
-        return 'Mr. ' . $this->first_name . ' ' . $this->middle_name . ' ' . $this->last_name;
-    } else {
-        return $this->first_name[0] . '. ' . $this->last_name;
-    }
-}
+Route::post('login', [AuthController::class, 'login']);
+Route::post('remember', [AuthController::class, 'remember']);
 ```
 
-Good:
+app\Http\Controllers\Api\AuthController.php:
 
 ```php
-public function getFullNameAttribute(): string
-{
-    return $this->isVerifiedClient() ? $this->getFullNameLong() : $this->getFullNameShort();
-}
+    public function __construct()
+    {
+        $this->middleware('auth:sanctum')->only(['logout', 'user']);
+    }
 
-public function isVerifiedClient(): bool
-{
-    return auth()->user() && auth()->user()->hasRole('client') && auth()->user()->isVerified();
-}
+        public function login(Request $request)
+    {
+        $request->validate([
+            'username' => 'required',
+            'password' => ['required', 'min:6'],
+            'remember' => ['boolean'],
+        ]);
 
-public function getFullNameLong(): string
-{
-    return 'Mr. ' . $this->first_name . ' ' . $this->middle_name . ' ' . $this->last_name;
-}
+        if (Auth::attempt(['username' => $request->username, 'password' => $request->password])) {
+            $user = to_user(Auth::user());
+            $token = $user->createToken('Sanctum', [])->plainTextToken;
+            if ($request->remember && !$user->remember_token) {
+                $user->remember_token = Str::random(40);
+                $user->save();
+            }
+            return response()->json([
+                'user' => new UserResource($user),
+                'remember_token' => $user->remember_token,
+                'token' => $token,
+            ], 200);
+        }
 
-public function getFullNameShort(): string
-{
-    return $this->first_name[0] . '. ' . $this->last_name;
-}
+        return response()->json([
+            'message' => 'username or password is incorrect.',
+            'errors' => [
+                'username' => ['username or password is incorrect.']
+            ]
+        ], 422);
+    }
+
+        public function remember(Request $request)
+    {
+        $request->validate([
+            'remember' => ['required','string'],
+        ]);
+        $user = User::where('remember_token', $request->remember)->first();
+        if ($user) {
+            $token = $user->createToken('Sanctum', [])->plainTextToken;
+            return response()->json([
+                'user' => new UserResource($user),
+                'remember_token' => $user->remember_token,
+                'token' => $token,
+            ], 200);
+        } else {
+            return response([
+                'error' => 'unauthenticated'
+            ], 401);
+        }
+    }
 ```
 
 [🔝 Back to contents](#contents)
