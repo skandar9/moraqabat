@@ -33,6 +33,8 @@ Key Features:
 By combining these features, tutorials, and documentation, the Advanced Student Management System offers a powerful and user-friendly solution for educational institutions to efficiently manage student data, streamline administrative tasks, and foster effective communication within the institution. The project demonstrates proficiency in PHP (utilizing Laravel), Docker, NestJS, GraphQL, Node.js, algorithms, Ruby, and React, showcasing a diverse skill set and a deep understanding of modern web development technologies.
 ## Contents
 
+[Tables and relations](#tables-and-relations)
+
 [Authentication](#authentication)
 
 [PermissionSeeder Class](#PermissionSeeder)
@@ -48,6 +50,15 @@ By combining these features, tutorials, and documentation, the Advanced Student 
 [Opened halls](#opened-halls)
 
 [Students list](#students)
+
+
+### **tables-and-relations**
+
+![Logo](/images/tables-relations.png)
+
+[Link Text](/moraqabat.pdf){:target="_blank"}
+
+[🔝 Back to contents](#contents)
 
 ### **authentication**
 
