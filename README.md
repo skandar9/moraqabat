@@ -209,93 +209,75 @@ After logging out the user, the function redirects them to the 'home' route usin
 ```
 
 [🔝 Back to contents](#contents)
+### PermissionSeeder
 
-### **PermissionSeeder**
-
-database\seeders\PermissionSeeder.php:
+`database\seeders\PermissionSeeder.php`
 
 ```php
-class PermissionSeeder extends Seeder
-{
-    public function run()
-    {
-        $permissions  = Permission::all()->pluck('name')->toArray();
+class PermissionSeeder extends Seeder {
+    public function run() {
+        $permissions = Permission::all()->pluck('name')->toArray();
+        
+        // Create missing permissions if they don't exist
         if(!in_array('users_management', $permissions))
             Permission::create(['name' => 'users_management']);
         if(!in_array('permissions_management', $permissions))
             Permission::create(['name' => 'permissions_management']);
-        if(!in_array('departments_management', $permissions))
-            Permission::create(['name' => 'departments_management']);
-        if(!in_array('positions_management', $permissions))
-            Permission::create(['name' => 'positions_management']);
-        if(!in_array('observers_management', $permissions))
-            Permission::create(['name' => 'observers_management']);
-        if(!in_array('note_templates_management', $permissions))
-            Permission::create(['name' => 'note_templates_management']);
-        if(!in_array('desire_types_management', $permissions))
-            Permission::create(['name' => 'desire_types_management']);
-        if(!in_array('desires_management', $permissions))
-            Permission::create(['name' => 'desires_management']);
-        if(!in_array('exam_days_management', $permissions))
-            Permission::create(['name' => 'exam_days_management']);
-        if(!in_array('collages_management', $permissions))
-            Permission::create(['name' => 'collages_management']);
-        if(!in_array('halls_management', $permissions))
-            Permission::create(['name' => 'halls_management']);
-        if(!in_array('materials_management', $permissions))
-            Permission::create(['name' => 'materials_management']);             
-        if(!in_array('observations_management', $permissions))
-            Permission::create(['name' => 'observations_management']);             
-
-        $roles  = Role::all()->pluck('name')->toArray();
+        // ... and so on for other permissions
+        
+        $roles = Role::all()->pluck('name')->toArray();
+        
+        // Create or retrieve 'super_admin' role
         if(!in_array('super_admin', $roles))
             $super_admin_role = Role::create(['name' => 'super_admin']);
         else
             $super_admin_role = Role::where('name', 'super_admin')->first();
         
+        // Create or retrieve 'admin' role
         if(!in_array('admin', $roles))
             $admin_role = Role::create(['name' => 'admin']);
         else
             $admin_role = Role::where('name', 'admin')->first();
         
+        // Assign 'super_admin' role to 'super_admin' user
         $super_admin_user = User::where('username','super_admin')->first();
         if($super_admin_user)
             $super_admin_user->assignRole($super_admin_role);
         
+        // Assign 'admin' role to 'admin' user
         $admin_user = User::where('username','admin')->first();
         if($admin_user)
             $admin_user->assignRole($admin_role);
         
         $permissions = Permission::all();
+        
+        // Give 'super_admin' role permission to all existing permissions
         foreach($permissions as $permission)
             $super_admin_role->givePermissionTo($permission);
     }
 }
 ```
-This seeder class is responsible for populating the database with initial permission and role data.
-This seeder creates or retrieves specific permissions and roles, assigns roles to users, and gives the *'super_admin'* role permission to all existing permissions in the system.It typically used to seed the initial data in the database for permissions and roles.
-### description code lines: 
 
-It retrieves all existing permissions from the Permission model and stores their names in an array using the *pluck* method.
-It checks if a every permission (I included in each if statement) exists in the array of permissions. If not, it creates a new permission with the name *'users_management'* using the *create* method of the Permission model.
-It repeats the above step for each of the following permissions: 'permissions_management', 'departments_management', 'positions_management', 'observers_management', 'note_templates_management', 'desire_types_management', 'desires_management', 'exam_days_management', 'collages_management', 'halls_management', 'materials_management', and 'observations_management'.
+The `PermissionSeeder` class is responsible for populating the database with initial permission and role data. It creates or retrieves specific permissions and roles, assigns roles to users, and gives the `super_admin` role permission to all existing permissions in the system. This seeder class is typically used to seed the initial data in the database for permissions and roles.
 
-It retrieves all existing roles from the Role model and stores their names in an array using the *pluck* method.
-It checks if a role named *'super_admin'* exists in the array of roles. If not, it creates a new role with the name *'super_admin'* using the create method of the Role model. If the role already exists, it retrieves the existing role using the where method.
-It repeats the above step for a role named *'admin'*.
-It retrieves the user with the username *'super_admin'* using the User model.
-If the super admin user exists, it assigns the *'super_admin'* role to the user using the *assignRole method*.
+The code performs the following actions:
 
-It retrieves the user with the username *'admin'* using the User model.
-If the admin user exists, it assigns the *'admin'* role to the user using the assignRole method.
-It retrieves all permissions from the Permission model.
-It iterates over each permission and gives the *'super_admin'* role permission to each permission using the *givePermissionTo* method.
+1. Retrieves all existing permissions from the `Permission` model and stores their names in an array using the `pluck` method.
+2. Checks if each permission (included in each `if` statement) exists in the array of permissions. If not, it creates a new permission with the corresponding name (e.g., `'users_management'`) using the `create` method of the `Permission` model.
+3. Repeats the above step for each of the following permissions: `'permissions_management'`, `'departments_management'`, `'positions_management'`, `'observers_management'`, `'note_templates_management'`, `'desire_types_management'`, `'desires_management'`, `'exam_days_management'`, `'collages_management'`, `'halls_management'`, `'materials_management'`, and `'observations_management'`.
+4. Retrieves all existing roles from the `Role` model and stores their names in an array using the `pluck` method.
+5. Checks if a role named `'super_admin'` exists in the array of roles. If not, it creates a new role with the name `'super_admin'` using the `create` method of the `Role` model. If the role already exists, it retrieves the existing role using the `where` method.
+6. Repeats the above step for a role named `'admin'`.
+7. Retrieves the user with the username `'super_admin'` using the `User` model. If the super admin user exists, it assigns the `'super_admin'` role to the user using the `assignRole` method.
+8. Retrieves the user with the username `'admin'` using the `User` model. If the admin user exists, it assigns the `'admin'` role to the user using the `assignRole` method.
+9. Retrieves all permissions from the `Permission` model.
+10. Iterates over each permission and gives the `'super_admin'` role permission to each permission using the `givePermissionTo` method.
 
 [🔝 Back to contents](#contents)
 
 ### **role-permission**
 
-app\Http\Controllers\PermissionsController.php:
+`app\Http\Controllers\PermissionsController.php`
 
 ```php
 public function __construct()
@@ -303,8 +285,15 @@ public function __construct()
     $this->middleware('auth:sanctum');
     $this->middleware('can:permissions_management');
 }
-.
-.
+```
+
+The constructor method applies two middlewares:
+
+- `auth:sanctum`: This middleware is responsible for authenticating the user using Sanctum. Sanctum is a Laravel package that provides a simple, lightweight authentication system for APIs. It allows users to authenticate using API tokens.
+
+- `can:permissions_management`: This middleware checks if the authenticated user has the necessary permission (`permissions_management`) to access the corresponding route or method.
+
+```php
 public function add_role_permission(Role $role, Request $request)
 {
     $request->validate([
@@ -314,29 +303,22 @@ public function add_role_permission(Role $role, Request $request)
     return PermissionResource::collection($role->permissions);
 }
 ```
-The *add_role_permission* method adds a permission to a specified role and returns a collection of permissions using a resource class for formatting.
 
-### description code lines: 
-The constructor method applies two middleware to the class,
- - auth:sanctum 
- - can:permissions_management.
-  
-auth:sanctum: This middleware is responsible for authenticating the user using Sanctum. (Sanctum is the Laravel package I used that provides a simple, lightweight authentication system for APIs. It allows users to authenticate using API tokens).
+The `add_role_permission()` method is responsible for adding a permission to a specified role and returning a collection of permissions using a resource class for formatting.
 
-can:permissions_management: This middleware checks if the authenticated user has the necessary permission (permissions_management) to access the corresponding route or method.
+Description of code lines:
 
-add_role_permission() method:
-The method starts by validating the incoming request data using the validate method. It checks if the name field is required and exists in the permissions table with the *name* column.
+1. The method starts by validating the incoming request data using the `validate` method. It checks if the `name` field is required and exists in the `permissions` table with the `name` column.
 
-If the validation passes, the method calls the *givePermissionTo* method on the *$role* object. This method is provided by a package. It assigns the specified permission *($request->name)* to the role.
+2. If the validation passes, the method calls the `givePermissionTo` method on the `$role` object. This method, provided by a package, assigns the specified permission (`$request->name`) to the role.
 
-Finally, the method returns a collection of *PermissionResource* objects. It appears that the PermissionResource is a resource class used to transform and format the permissions associated with the role.
+3. Finally, the method returns a collection of `PermissionResource` objects. It appears that `PermissionResource` is a resource class used to transform and format the permissions associated with the role.
 
 [🔝 Back to contents](#contents)
 
 ### **user-permissions**
 
-app\Http\Controllers\Api\UsersController.php:
+`app\Http\Controllers\Api\UsersController.php`
 
 ```php
 public function __construct()
@@ -344,24 +326,43 @@ public function __construct()
     $this->middleware('auth:sanctum');
     $this->middleware('can:users_management');
 }
-.
-.
-.
+```
+
+The `user-permissions` component includes the `UsersController.php` file, located in the `app\Http\Controllers\Api` directory. This file contains the following code:
+
+The constructor method applies two middlewares:
+
+- `auth:sanctum`: This middleware is responsible for authenticating the user using Sanctum. Sanctum is a Laravel package that provides a simple, lightweight authentication system for APIs. It allows users to authenticate using API tokens.
+
+- `can:users_management`: This middleware checks if the authenticated user has the necessary permission (`users_management`) to access the corresponding route or method.
+
+```php
 public function get_users_permissions(User $user)
 {
     $roles_ids = $user->roles->pluck('id');
-    $permissions_ids = DB::table('role_has_permissions')->whereIn('role_id',$roles_ids)->get()->unique('permission_id')->pluck('permission_id');
-    $permissions = Permission::whereIn('id',$permissions_ids)->get();
+    $permissions_ids = DB::table('role_has_permissions')->whereIn('role_id', $roles_ids)->get()->unique('permission_id')->pluck('permission_id');
+    $permissions = Permission::whereIn('id', $permissions_ids)->get();
     return PermissionResource::collection($permissions);
 }
 ```
-The *get_users_permissions* method retrieves the roles associated with a user, fetches the unique permission IDs from the roles, retrieves the corresponding permissions, and returns them as a collection of formatted PermissionResource objects.
+
+The `get_users_permissions()` method is responsible for retrieving the roles associated with a user, fetching the unique permission IDs from the roles, retrieving the corresponding permissions, and returning them as a collection of formatted `PermissionResource` objects.
+
+Description of code lines:
+
+1. The method starts by retrieving the role IDs associated with the `$user` using the `pluck` method on the `$user->roles` relationship.
+
+2. Next, it queries the `role_has_permissions` table using the `whereIn` method to fetch the rows where the `role_id` is in the `$roles_ids` array. It retrieves all the rows and ensures that only unique `permission_id` values are returned using the `unique` method.
+
+3. The method then retrieves the permissions corresponding to the `permissions_ids` using the `Permission` model and the `whereIn` method.
+
+4. Finally, it returns a collection of `PermissionResource` objects using the `PermissionResource::collection` method to format the permissions.
 
 [🔝 Back to contents](#contents)
 
 ### **add-teacher**
 
-app\Http\Controllers\Api\MaterialsController.php:
+#### app\Http\Controllers\Api\MaterialsController.php:
 
 ```php
 public function add_teacher(Material $material, Request $request)
@@ -373,9 +374,17 @@ public function add_teacher(Material $material, Request $request)
     return $material->teachers()->pluck('name');
 }
 ```
-the *add_teacher* method validates and associates an observer with a material. It then retrieves and returns the names of all the teachers associated with the material. The code is used to manage the relationship between materials and teachers, allowing materials to have multiple teachers.
 
-The *teachers* method defines the relationship between the Material model and the Observer model using a many-to-many relationship. It uses the belongsToMany method and specifies the Observer model class, the pivot table name *(material_teachers)*, and the foreign key columns (material_id and teacher_id) in the pivot table.
+1. It validates the request data using the `validate` method. In this case, it ensures that the `observer_id` field is required and exists in the `observers` table.
+
+2. After validating the request, it associates the specified observer with the given material by calling the `attach` method on the `teachers` relationship of the `$material` object.
+
+3. Finally, it returns the names of all the teachers associated with the material by calling the `pluck` method on the `teachers` relationship.
+
+The `add_teacher` method is used to manage the relationship between materials and teachers, allowing materials to have multiple teachers.
+
+
+`app\Models\Material.php`
 
 ```php
 public function teachers()
@@ -383,6 +392,15 @@ public function teachers()
     return $this->belongsToMany(Observer::class, 'material_teachers', 'material_id', 'teacher_id');
 }
 ```
+
+The `teachers` method is establishes a many-to-many relationship between the `Material` model and the `Observer` model. It uses the `belongsToMany` method and specifies the following parameters:
+
+- `Observer::class`: The related model class for teachers, in this case, the `Observer` model.
+- `'material_teachers'`: The name of the pivot table that represents the relationship between materials and teachers.
+- `'material_id'` and `'teacher_id'`: The foreign key columns in the pivot table that correspond to the material and teacher IDs, respectively.
+
+`database\migrations\2022_10_26_134508_create_material_teachers_table.php`
+
 ```php
 Schema::create('material_teachers', function (Blueprint $table) {
     $table->id();
@@ -393,11 +411,15 @@ Schema::create('material_teachers', function (Blueprint $table) {
 });
 ```
 
+- `material_id`: A foreign key column referencing the `materials` table.
+- `teacher_id`: A foreign key column referencing the `observers` table.
+- `unique(['material_id','teacher_id'])`: Defines a unique constraint on the combination of `material_id` and `teacher_id` columns to ensure that each material can have a unique teacher.
+
 [🔝 Back to contents](#contents)
 
 ### **store-observation**
 
-app\Http\Controllers\Api\ObservationsController.php:
+`app\Http\Controllers\Api\ObservationsController.php`
 
 ```php
 public function store(Request $request)
@@ -406,21 +428,24 @@ public function store(Request $request)
         'exam_day_id'   => ['required', 'exists:exam_days,id'],
         'exam_period'   => ['required', 'in:1,2,3'],
         'hall_id'       => ['required', 'exists:halls,id'],
-        'observer_id'   => ['required', ValidationRule::exists('observers', 'id')->where('ob_active', True)],
+        'observer_id'   => ['required', ValidationRule::exists('observers', 'id')->where('ob_active', true)],
         'force'         => ['boolean'],
     ]);
 
     $exam_day = ExamDay::find($request->exam_day_id);
     $periods = $exam_day->periods_count;
     $rule = 'in:1' . ($periods >= 2 ? ',2' : '') . ($periods >= 3 ? ',3' : '');
+
     $request->validate([
         'exam_period'   => [$rule],
     ]);
 
     $observer = Observer::find($request->observer_id);
 
-    if ($observer->ob_remain <= 0 && !$request->force)
-        throw new BadRequestException("The selected observer have full observations!");
+    // Check if the observer has remaining observations
+    if ($observer->ob_remain <= 0 && !$request->force) {
+        throw new BadRequestException("The selected observer has full observations!");
+    }
 
     $observation = Observation::create([
         'exam_day_id' => $request->exam_day_id,
@@ -437,17 +462,26 @@ public function store(Request $request)
     return response()->json(new ObservationResource($observation), 201);
 }
 ```
-The *store* method validates the request data, creates a new observation, updates the observer's observation-related attributes, and returns the created observation as a JSON response. It also performs additional checks to ensure that the operation is allowed based on the observer's remaining observations and the force parameter.
 
-The code retrieves the associated ExamDay instance based on the provided exam_day_id using the find method.
+The `store` method is responsible for storing a new observation. It follows the standard Laravel method signature, taking a `Request` object as a parameter and returning a JSON response.
 
-It constructs a validation rule string ($rule) for the exam_period field based on the number of periods available for the exam day.
+The method begins by validating the request data using the `validate` method. It ensures that the required fields (`exam_day_id`, `exam_period`, `hall_id`, `observer_id`) are present and meet the specified validation rules. The `force` field is validated as a boolean.
 
-The code checks if the selected observer has remaining observations, and if so, creates a new Observation instance, updates the observer's attributes, and returns the created observation, It uses the [ObservationResource class](#ObservationResource) to transform the observation data
+Next, the code retrieves the associated `ExamDay` instance based on the provided `exam_day_id` using the `find` method.
+
+A validation rule string (`$rule`) is constructed for the `exam_period` field based on the number of periods available for the exam day.
+
+The code checks if the selected observer has remaining observations. If the observer has no remaining observations and the `force` parameter is not set, a `BadRequestException` is thrown with an appropriate message.
+
+If the observer has remaining observations or the `force` parameter is set, a new `Observation` instance is created using the `create` method. The observation is populated with the provided data: `exam_day_id`, `exam_period`, `hall_id`, and `observer_id`.
+
+After creating the observation, the observer's attributes are updated to reflect the change in the number of finished observations (`ob_finished`) and remaining observations (`ob_remain`). This is done using the `update` method and the `DB::raw` expression to increment `ob_finished` by 1 and decrement `ob_remain` by 1.
+
+Finally, the created observation is transformed into a [ObservationResource class](#ObservationResource) instance, and the response is returned as JSON with a HTTP status code of 201 (Created).
 
 ### **ObservationResource**
 
-app\Http\Resources\ObservationResource.php:
+`app\Http\Resources\ObservationResource.php`
 
 ```php
 class ObservationResource extends JsonResource
@@ -482,12 +516,24 @@ class ObservationResource extends JsonResource
     }
 }
 ```
+The `ObservationResource` class extends the `JsonResource` class and is used to transform an observation model into a JSON array.
+
+The `toArray` method is overridden to define the structure of the transformed array. It includes the following fields:
+
+- `id`: The observation's ID.
+- `exam_day_id`: The ID of the associated exam day.
+- `hall_id`: The ID of the associated hall.
+- `observer_id`: The ID of the associated observer.
+- `exam_period`: The exam period of the observation.
+- `exam_day`: An array representing the associated exam day, containing the `id` and `date` fields.
+- `hall`: An array representing the associated hall, containing the `id`, `name`, and `collage` fields. The `collage` field is transformed using the `CollageResource` class (a similar class that transforms an collage model into a JSON array).
+- `observer`: An array representing the associated observer information.
 
 [🔝 Back to contents](#contents)
 
 ### **opened-halls**
 
-app\Http\Controllers\Api\ResultsController.php:
+`app\Http\Controllers\Api\ResultsController.php`
 
 ```php
 public function opened_halls()
@@ -499,45 +545,55 @@ public function opened_halls()
         $exam_day_id = (int) $opened_hall->exam_day_id;
         $exam_period = (int) $opened_hall->exam_period;
 
-        if (!isset($results[$exam_day_id]))
+        if (!isset($results[$exam_day_id])) {
             $results[$exam_day_id] = [
                 'exam_day' => new ExamDayResource($opened_hall->exam_day),
                 'periods' => [],
             ];
+        }
 
-        if (!isset($results[$exam_day_id]['periods'][$exam_period]))
+        if (!isset($results[$exam_day_id]['periods'][$exam_period])) {
             $results[$exam_day_id]['periods'][$exam_period] = [];
+        }
 
         $results[$exam_day_id]['periods'][$exam_period][] = [
             'hall' => new HallResource($opened_hall->hall),
-            'opened_sections' => (int) $opened_hall->opened_sections
+            'opened_sections' => (int) $opened_hall->opened_sections,
         ];
     }
 
     ksort($results);
-    foreach ($results as $key => $value)
+    foreach ($results as $key => $value) {
         ksort($results[$key]['periods']);
+    }
+
     return $results;
 }
 ```
-The *opened_halls* function retrieves information about opened halls for exams, organizes the data by exam days and periods, and returns the sorted results in an array format. This structured representation allows for efficient handling and retrieval of the opened hall information.
 
-The function retrieves all instances of the OpenedHall model from the database, along with their associated hall and exam_day relationships.
+The `opened_halls` function retrieves information about opened halls for exams, organizes the data by exam days and periods, and returns the sorted results in an array format. This structured representation allows for efficient handling and retrieval of the opened hall information.
 
-It processes each opened hall by iterating over the $opened_halls collection using a foreach loop.
-Exam day ID and exam period values are extracted from each opened hall and casted to integers for consistency.
+The function begins by fetching all instances of the `OpenedHall` model from the database, eager loading their associated `hall` and `exam_day` relationships.
 
-The function organizes the data by creating entries in the $results array, grouping halls by exam days and periods.
+The function iterates over each `$opened_hall` in the `$opened_halls` collection using a `foreach` loop.
 
-The processed data is sorted based on exam day ID and periods, ensuring an organized representation of the opened halls.
+For each opened hall, the exam day ID and exam period are extracted and casted to integers for consistency.
 
-Finally, the function returns the sorted and structured $results array, providing information about opened halls grouped by exam days and periods.
+The function checks if an entry for the exam day already exists in the `$results` array. If not, a new entry is created with the exam day and an empty array for periods.
+
+Similarly, the function checks if an entry for the exam period already exists within the exam day's periods. If not, a new empty array is created.
+
+The opened hall information, including the hall resource and the number of opened sections, is added to the corresponding period array.
+
+After processing all opened halls, the `$results` array is sorted based on the exam day ID using `ksort()`. Additionally, each period array within the exam days is sorted using `ksort()` to ensure an organized representation.
+
+Finally, the sorted and structured `$results` array is returned, providing information about opened halls grouped by exam days and periods.
 
 [🔝 Back to contents](#contents)
 
 ### **students**
 
-app\Http\Controllers\Api\StudentController.php:
+`app\Http\Controllers\Api\StudentController.php`
 
 ```php
 public function index(Request $request)
@@ -551,33 +607,43 @@ public function index(Request $request)
     ]);
 
     $q = Student::query();
-    if($request->department_id)
-        $q->where('department_id',$request->department_id);
-    
-    if($request->student_number)
-        $q->where('student_number',$request->student_number);
-        
-    if($request->national_number)
-        $q->where('national_number',$request->national_number);
-        
-    if($request->study_year)
-        $q->where('study_year',$request->study_year);
-        
-    if($request->current_class)
-        $q->where('current_class',$request->current_class);
-        
+
+    if ($request->department_id) {
+        $q->where('department_id', $request->department_id);
+    }
+
+    if ($request->student_number) {
+        $q->where('student_number', $request->student_number);
+    }
+
+    if ($request->national_number) {
+        $q->where('national_number', $request->national_number);
+    }
+
+    if ($request->study_year) {
+        $q->where('study_year', $request->study_year);
+    }
+
+    if ($request->current_class) {
+        $q->where('current_class', $request->current_class);
+    }
+
     $students = $q->get();
-    return StudentResource::collection($students);    
+
+    return StudentResource::collection($students);
 }
 ```
-The *index* function handles the search functionality for retrieving students based on various criteria provided in the request. It applies the specified filters to the database query, retrieves the matching students, and returns them as a collection of transformed resources.
 
-The index function validates the request parameters to ensure they meet the specified rules. It then creates a query builder instance for the Student model to build dynamic queries.
+The `index` function handles the search functionality for retrieving students based on various criteria provided in the request. It applies the specified filters to the database query, retrieves the matching students, and returns them as a collection of transformed resources.
 
-The function applies filters based on provided parameters such as department_id, student_number, national_number, study_year, and current_class. 
+The function begins by validating the request parameters using the `validate` method to ensure they meet the specified rules.
 
-It executes the query and stores the resulting collection of matching students.
+Next, a query builder instance for the `Student` model is created using the `query` method.
 
-Finally, the function transforms the student objects into a resource representation using the StudentResource class and returns the transformed collection as a JSON response.
+The function applies filters to the query based on the provided parameters such as `department_id`, `student_number`, `national_number`, `study_year`, and `current_class`. Each filter is applied conditionally to the query if the corresponding parameter is present in the request.
+
+After applying the filters, the query is executed using the `get` method, and the resulting collection of matching students is stored in the `$students` variable.
+
+Finally, the function transforms the student objects into a resource representation using the `StudentResource` class and returns the transformed collection as a JSON response.
 
 [🔝 Back to contents](#contents)
