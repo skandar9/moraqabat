@@ -56,7 +56,8 @@ By combining these features, tutorials, and documentation, the Advanced Student 
 
 ![Logo](/images/tables-relations.png)
 
-[Link Text](/moraqabat.pdf){:target="_blank"}
+<!-- [Link Text](/moraqabat.pdf){:target="_blank"} -->
+<a href="/moraqabat.pdf" target="_blank">Open PDF Document</a>
 
 [🔝 Back to contents](#contents)
 
