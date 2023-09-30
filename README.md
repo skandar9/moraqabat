@@ -32,10 +32,19 @@ Key Features:
 
 By combining these features, tutorials, and documentation, the Advanced Student Management System offers a powerful and user-friendly solution for educational institutions to efficiently manage student data, streamline administrative tasks, and foster effective communication within the institution. The project demonstrates proficiency in PHP (utilizing Laravel), Docker, NestJS, GraphQL, Node.js, algorithms, Ruby, and React, showcasing a diverse skill set and a deep understanding of modern web development technologies.
 ## Contents
+(contains parts of my code)
 
 [Tables and relations](#tables-and-relations)
 
-[Authentication](#authentication)
+- [Authentication](#authentication)
+    - [Guards](#Guards)
+      - [Guards Definition](#guards-definition)
+      - [Guards building steps](#guards-building-steps)
+    - [LogIn](#login)
+      - [Login with API route](#login-with-api-route)
+      - [Login with web route](#login-with-web-route)
+    - [Authentication](#authentication)
+  
 
 [PermissionSeeder Class](#PermissionSeeder)
 
@@ -56,105 +65,242 @@ By combining these features, tutorials, and documentation, the Advanced Student 
 
 ![Logo](/images/tables-relations.png)
 
-<!-- [Link Text](/moraqabat.pdf){:target="_blank"} -->
-<!-- <a href="/moraqabat.pdf" target="_blank">Open PDF Document</a> -->
-<a href="javascript:void(0);" onclick="window.open('/moraqabat.pdf')">Open PDF Document</a>
+<a href="/moraqabat.pdf" target="_blank">Open PDF Document</a>
 
 [🔝 Back to contents](#contents)
 
-### **authentication**
 
-1-Using Api routes: 
+### **guards-definition**
 
-routes\api.php:
+In the context of web application security, guards are an essential component of authentication systems. They provide a way to authenticate and authorize users based on their roles or permissions. Guards help ensure that only authenticated users with the necessary privileges can access certain resources or perform specific actions within an application.
+
+Here are the key aspects of guards and their role in web application security:
+
+1. **Authentication**:
+   Guards handle the authentication process, which verifies the identity of a user. When a user attempts to log in or access a protected resource, the guard authenticates their credentials, such as username and password. If the credentials are valid, the user is considered authenticated and gains access to the application.
+
+2. **Authorization**:
+   Guards also handle the authorization process, which determines whether an authenticated user has the necessary permissions to perform a specific action or access a particular resource. Based on the user's role, permissions, or any other defined criteria, guards enforce access control and restrict unauthorized actions or resource access.
+
+3. **Middleware Integration**:
+   Guards seamlessly integrate with middleware in web frameworks. Middleware acts as a filter or interceptor for incoming requests, allowing  to intercept and inspect requests before they reach the intended route or controllers.
+
+
+[🔝 Back to contents](#contents)
+
+### **guards-building-steps**
+
+The overall steps for building guards:
+
+1. [Configure Guards](#configure-guards): Define the guards in the `config/auth.php` configuration file. Specify the driver (e.g., session, token, or passport) and associate each guard with an authentication provider.
+
+2. [Implement Guard-Specific Middleware](#guards-middlewares): For custom logic for the guards, create guard-specific middleware classes. Middleware intercepts requests and can be used for authentication, authorization, or any other processing before the request reaches the intended route or controller.
+
+3. [Register Middleware](#register-middlewares): In the `app/Http/Kernel.php` file, register the guard-specific middleware classes in the `$routeMiddleware` property. Assign a unique key to each middleware class, which will be used when specifying middleware for routes or controllers.
+
+4. [Apply Middlewares to Routes or Controllers](#apply-middleware-example): Use the registered middleware in the routes or controllers to enforce authentication and authorization. Specify the middleware using the assigned keys in the `$routeMiddleware` property.
+
+5. **Redirect or Respond**: Depending on the authentication and authorization outcomes, redirect the user to the appropriate routes or controllers, or respond with appropriate error messages or status codes. Laravel provides helper methods like `redirect()` and `abort()` for these purposes.
+
+[🔝 Back to contents](#contents)
+
+### **configure-guards**
+
+`config\auth.php:`
+
+This configuration file allows to authenticate and authorize users based on different guard types and provide customized authentication logic for each guard.
 
 ```php
-Route::post('login', [AuthController::class, 'login']);
+'guards' => [
+    'web' => [
+        'driver' => 'session',
+        'provider' => 'users',
+    ],
+    'user' => [
+        'driver' => 'session',
+        'provider' => 'users',
+    ],
+    'observer' => [
+        'driver' => 'session',
+        'provider' => 'observers',
+    ],
+],
+.
+.
+.
+    'providers' => [
+    'users' => [
+        'driver' => 'eloquent',
+        'model' => App\Models\User::class,
+    ],
+    'observers' => [
+        'driver' => 'eloquent',
+        'model' => App\Models\Observer::class,
+    ],
+],
 ```
+The `guards` array defines the authentication guards available in my application. Each guard is associated with a specific driver and provider.
 
-app\Http\Controllers\Api\AuthController.php:
+Guards I defined:
 
-The constructor, this function is part of a controller class and is responsible for setting up themiddleware for authentication using Laravel Sanctum.
-This middleware ensures that the user is authenticated using the Sanctum authentication guardbefore accessing the methods.
-The $this->middleware('auth:sanctum')->only(['logout', 'user']); line specifies that the'auth:sanctum' middleware should be applied only to the 'logout' and 'user' methods.
+1. **web**:
+   - Driver: `'session'`
+   - Provider: `'users'`
+
+   This guard is the default guard for web-based authentication. It uses the session driver to store the user's authentication status and is associated with the `'users'` provider, which is an Eloquent-based provider.
+
+2. **user**:
+   - Driver: `'session'`
+   - Provider: `'users'`
+
+   This guard is a custom guard named `'user'`. It also uses the session driver and is associated with the `'users'` provider.
+
+3. **observer**:
+   - Driver: `'session'`
+   - Provider: `'observers'`
+
+   This guard is another custom guard named `'observer'`. It utilizes the session driver and is associated with the `'observers'` provider.
+
+
+The `providers` array defines the authentication providers used by the guards. Each provider specifies the driver and model associated with it.
+
+Providers I defined:
+
+1. **users**:
+   - Driver: `'eloquent'`
+   - Model: `App\Models\User::class`
+
+   This provider is associated with the `'users'` guard and uses the Eloquent driver to retrieve user information. The `model` property specifies the User model class for this provider.
+
+2. **observers**:
+   - Driver: `'eloquent'`
+   - Model: `App\Models\Observer::class`
+
+   This provider is associated with the `'observers'` guard and also uses the Eloquent driver. It specifies the Observer model class for this provider.
+
+[🔝 Back to contents](#contents)
+
+### **guards-middlewares**
+
+I defined two middlewares, ObservationsGuest and ObservationsAuth.
+
+`app\Http\Middleware\ObservationsGuest.php:`
 
 ```php
-    public function __construct()
+class ObservationsGuest
+{
+    public function handle(Request $request, Closure $next)
     {
-        $this->middleware('auth:sanctum')->only(['logout', 'user']);
+        $observer = Auth::guard('observer')->user();
+        $user = Auth::guard('user')->user();
+
+        if ($user)
+        return redirect()->route('user.home');
+        if ($observer)
+        return redirect()->route('observer.home');
+
+        return $next($request);
     }
+}
 ```
 
-The login() function, It  validates the incoming request data, including the username, password, and remember option. If the  authentication attempt is successful, it generates an access token using Laravel Sanctum and returns a JSON response with the authentication user "Auth::user()" details, remember token (if applicable), and the access token. If the  authentication attempt fails, it returns a JSON response indicating the error.
+The `ObservationsGuest` middleware checks for an authenticated user and observer using their respective guards. It redirects the request based on the authentication status, either to the user's home page or the observer's home page. If no user or observer is authenticated, the request proceeds to the next middleware or the final request handler.
 
-The Auth::attempt() method at line 78 is attempting to authenticate the user using the provided username and password.
-The method takes an array of credential key-value pairs as its argument, where the keys represent the user attributes ('username', 'password') and the values correspond to the provided input values from the request object. 
+1. The middleware first checks if there is an authenticated user using the `'user'` guard by accessing `Auth::guard('user')->user()`.
+   - If an authenticated user exists, it redirects the request to the `'user.home'` route using `redirect()->route('user.home')`.
+   - This means that if a user is already authenticated, they will be redirected to the `'user.home'` route, assuming it is the home page for authenticated users.
 
-The 'user' key in the JSON response refers to the $user object, which is serialized using the [UserResource] (#userResource) class. This enables customized formatting of user attributes, which I defined within the class, ensuring their inclusion in the JSON response.
+2. If there is no authenticated user, the middleware then checks if there is an authenticated observer using the `'observer'` guard by accessing `Auth::guard('observer')->user()`.
+   - If an authenticated observer exists, it redirects the request to the `'observer.home'` route using `redirect()->route('observer.home')`.
+   - This means that if an observer is authenticated but not a user, the request will be redirected to the `'observer.home'` route, assuming it is the home page for authenticated observers.
 
-The createToken() method generates a token for the authenticated user using Laravel Sanctum authentication. The plainTextToken property is then accessed on the generated token, which retrieves the plain text representation of the token
+3. If neither a user nor an observer is authenticated, the middleware allows the request to proceed to the next middleware or the final request handler using `$next($request)`.
+   - This means that if no user or observer is authenticated, the request will continue to the next middleware in the pipeline or reach the final request handler for further processing.
+
+
+`app\Http\Middleware\ObservationsAuth.php:`
 
 ```php
-    public function login(Request $request)
+class ObservationsAuth
+{
+    public function handle(Request $request, Closure $next, $type)
     {
-        $request->validate([
-            'username' => 'required',
-            'password' => ['required', 'min:6'],
-            'remember' => ['boolean'],
-        ]);
+        $observer = Auth::guard('observer')->user();
+        $user = Auth::guard('user')->user();
+        
+        if (!$observer && !$user && $type == 'observer')
+            return redirect()->route('observer.login');
 
-        if (Auth::attempt(['username' => $request->username, 'password' => $request->password])) {
-            $user = to_user(Auth::user());
-            $token = $user->createToken('Sanctum', [])->plainTextToken;
-            if ($request->remember && !$user->remember_token) {
-                $user->remember_token = Str::random(40);
-                $user->save();
-            }
-            return response()->json([
-                'user' => new UserResource($user),
-                'remember_token' => $user->remember_token,
-                'token' => $token,
-            ], 200);
-        }
+        if (!$observer && !$user && $type == 'user')
+            return redirect()->route('user.login');
 
-        return response()->json([
-            'message' => 'username or password is incorrect.',
-            'errors' => [
-                'username' => ['username or password is incorrect.']
-            ]
-        ], 422);
+        if ($observer && !$user && $type != 'observer')
+            return abort('403');
+
+        if ($user && !$observer && $type != 'user')
+            return abort('403');
+
+        return $next($request);
     }
+}
 ```
-1-Using Api routes: 
 
-routes\web.php:
+The `ObservationsAuth` middleware checks for the authentication status of observers and users based on their respective guards. It redirects or aborts the request based on the specified authentication type (`'observer'` or `'user'`) and the authentication status. If an observer or user is authenticated but doesn't match the desired authentication type, the request will be aborted. If no observer or user is authenticated, the middleware redirects the request to the corresponding login page. If none of these conditions are met, the request proceeds to the next middleware or the final request handler.
+
+1. The middleware first checks if there is an authenticated observer using the `'observer'` guard
+by accessing `Auth::guard('observer')->user()`.
+   - If no observer is authenticated and no user is authenticated, and the specified `$type` is `'observer'`, it redirects the request to the `'observer.login'` route using `redirect()->route('observer.login')`.
+      - This means that if no observer or user is authenticated, and the desired authentication type is `'observer'`, the request will be redirected to the `'observer.login'` route, assuming it is the login page for observers.
+   - If no observer is authenticated and no user is authenticated, and the specified `$type` is `'user'`, it redirects the request to the `'user.login'` route using `redirect()->route('user.login')`.
+      - This means that if no observer or user is authenticated, and the desired authentication type is `'user'`, the request will be redirected to the `'user.login'` route, assuming it is the login page for users.
+
+2. If an observer is authenticated but no user is authenticated, and the specified `$type` is not `'observer'`, it aborts the request with a `403` status code using `abort('403')`.
+   - This means that if an observer is authenticated but the desired authentication type is not `'observer'`, the request will be aborted with a `403 Forbidden` response.
+
+3. If a user is authenticated but no observer is authenticated, and the specified `$type` is not `'user'`, it aborts the request with a `403` status code using `abort('403')`.
+   - This means that if a user is authenticated but the desired authentication type is not `'user'`, the request will be aborted with a `403 Forbidden` response.
+
+4. If none of the above conditions are met, the middleware allows the request to proceed to the next middleware or the final request handler using `$next($request)`.
+   - This means that if no redirection or abort occurs, the request will continue to the next middleware in the pipeline or reach the final request handler for further processing.
+
+[🔝 Back to contents](#contents)
+
+### **register-middlewares**
+
+`app\Http\Kernel.php:`
 
 ```php
-Route::get('observer/login', [ObserversAuthController::class, 'login'])->name('observer.login');
-Route::post('observer/login', [ObserversAuthController::class, 'do_login'])->name('login');
-Route::post('observer/logout', [ObserversAuthController::class, 'logout'])->name('observer.logout');
-Route::get('user/login', [AuthController::class, 'login'])->name('user.login');
-Route::post('user/login', [AuthController::class, 'do_login'])->name('user');
-Route::post('user/logout', [AuthController::class, 'logout'])->name('user.logout');
-```
-app\Http\Controllers\ObserversAuthController.php:
+.
+.
+    protected $routeMiddleware = [
 
-The constructor, it sets up two middleware groups for specific controller methods.
-These middleware configurations control the access privileges for different methods in the controller, allowing only guest users to use login-related methods and authenticated users with the'observer' role to access the logout method
+        ...
+
+        'ob_auth' => \App\Http\Middleware\ObservationsAuth::class,
+        'ob_guest' => \App\Http\Middleware\ObservationsGuest::class,
+
+        ...
+
+    ];
+```
+
+By registering these middleware aliases in the `$routeMiddleware` property, It allows to easily reference and apply the corresponding middleware classes to specific routes or controller actions.
+
+[🔝 Back to contents](#contents)
+
+### **apply-middleware-example**
+
+`app\Http\Controllers\ObserversAuthController.php:`
 
 ```php
+class ObserversAuthController extends Controller
+{
     public function __construct()
     {
         $this->middleware('ob_guest')->only('login','do_login');
         $this->middleware('ob_auth:observer')->only('logout');
     }
-```
 
-The login() function handles the logic for the login process in the context of observers.
-First, it checks if there is already an authenticated observer user using the Auth::guard('observer')->user() method. If an observer user is already logged in, the function redirects them to the 'observer.home' route.
-If there is no authenticated observer user, the function retrieves a collection of observers from the database, ordered by their names, using the orderBy query. This collection of observers is then passed to the 'observers.login' view.
-
-```php
     public function login()
     {
         $observer = Auth::guard('observer')->user();
@@ -163,63 +309,207 @@ If there is no authenticated observer user, the function retrieves a collection 
         $observers = Observer::orderBy('name')->get();
         return view('observers.login')->with("observers",$observers);
     }
-```
 
-The do_login() function handles the submission of the login form for observers.
-
-The Hash::check() function is a method used to compare a plain text password with a hashed password. It takes two arguments: the plain text password ($request->password) and the hashed password($observer->password).
-If the provided password does not match the stored password for the observer, it returns back to the login form with an error message indicating that the password is incorrect.
-
-If the provided credentials are valid, the observer is logged in using the Auth::guard('observer')->login($observer) method, and the user is redirected to the 'observer.home' route.
-
-```php
-    public function do_login(Request $request)
-    {
-        $request->validate([
-            'observer_id'       => ['required', 'exists:observers,id'],
-            'password'          => ['required', 'string']
-        ]);
-
-        $observer = Observer::where('id', $request->observer_id)->first();
-
-        if (!$observer->password) {
-            return back()->withInput()->with('error',"المعلومات الشخصية للمراقب غير كاملة.\n يرجى إرسال صورة لوجهي الهوية الشخصية مع القسم والتوصيف الوظيفي والمرتبة العلمية على رقم واتساب التالي: <a href='https://wa.me/0985415539' target='_blank'>0985415539</a>");
-        }
-
-        if (!Hash::check($request->password, $observer->password)) {
-            return back()->withInput()->with('error',' كلمة المرور غير صحيحة');
-        }
-
-        Auth::guard('observer')->login($observer);
-        return redirect()->route('observer.home');
-    }
-```
-
-app\Http\Controllers\AuthController.php:
-
-This constructor sets up middleware groups to manage access privileges for specific controller methods. In this case, the 'ob_guest' middleware allows only guest users to access the 'login' and 'do_login' methods. On the other hand, the 'ob_auth:user' middleware only permits authenticated users with the 'user' role to access the 'logout' method.
-
-```php
-    public function __construct()
-    {
-        $this->middleware('ob_guest')->only('login','do_login');
-        $this->middleware('ob_auth:user')->only('logout');
-    }
-```
-
-The logout() function handles the logout process for users.
-
-First, it calls the Auth::guard('user')->logout() method to log out the currently authenticated user from the 'user' guard. This effectively clears the user's authentication status and removes the associated token.
-
-After logging out the user, the function redirects them to the 'home' route using redirect()->route('home').
-
-```php
     public function logout()
     {
-        Auth::guard('user')->logout();
+        Auth::guard('observer')->logout();
         return redirect()->route('home');
     }
+}
 ```
+The `ObserversAuthController` demonstrates the usage of middleware in a controller. The `ObservationsGuest` middleware is applied to the `'login'` and `'do_login'` actions, ensuring that only guests (non-authenticated users) can access those actions. The `ObservationsAuth` middleware is applied to the `'logout'` action, ensuring that only authenticated observers can access the logout action.
+
+**__construct() Method**: 
+
+This method is the constructor of the controller. It is called when an instance of the controller is created. In the constructor, middleware is applied to specific controller actions using the `middleware` method.
+
+1. `$this->middleware('ob_guest')->only('login','do_login');`:
+   This middleware, `'ob_guest'`, is applied only to the `'login'` and `'do_login'` actions. It means that when these actions are accessed, the `ObservationsGuest` middleware will be executed before the action code.
+
+2. `$this->middleware('ob_auth:observer')->only('logout');`:
+   This middleware, `'ob_auth'`, is applied only to the `'logout'` action. Additionally, it receives a parameter `'observer'`, which specifies the desired authentication type. This middleware is associated with the `ObservationsAuth` middleware class. It means that when the `'logout'` action is accessed, the `ObservationsAuth` middleware will be executed with the parameter `'observer'` before the action code.
+
+[🔝 Back to contents](#contents)
+
+### **login-with-api-route**
+
+`routes\api.php:`
+
+```php
+Route::post('login', [AuthController::class, 'login']);
+```
+
+`app\Http\Controllers\Api\AuthController.php:`
+
+```php
+public function __construct()
+{
+    $this->middleware('auth:sanctum')->only(['logout', 'user']);
+}
+```
+
+The `__construct()` method is part of the `AuthController` class and is executed when an instance of the class is created. It is responsible for setting up the middleware for authentication using Sanctum.
+
+`$this->middleware('auth:sanctum')->only(['logout', 'user'])` This line specifies that the `auth:sanctum` middleware should be applied only to the `logout` and `user` methods of the controller. This means that before accessing these methods, the user must be authenticated using the Sanctum authentication guard.
+
+The `auth:sanctum` middleware provided by Laravel Sanctum validates the user's authentication credentials and ensures that the user is logged in before proceeding with the requested actions. By applying this middleware to specific methods, you can restrict access to those methods only to authenticated users, providing an extra layer of security for sensitive operations.
+
+```php
+public function login(Request $request)
+{
+    $request->validate([
+        'username' => 'required',
+        'password' => ['required', 'min:6'],
+        'remember' => ['boolean'],
+    ]);
+
+    if (Auth::attempt(['username' => $request->username, 'password' => $request->password])) {
+        $user = to_user(Auth::user());
+        $token = $user->createToken('Sanctum', [])->plainTextToken;
+        if ($request->remember && !$user->remember_token) {
+            $user->remember_token = Str::random(40);
+            $user->save();
+        }
+        return response()->json([
+            'user' => new UserResource($user),
+            'remember_token' => $user->remember_token,
+            'token' => $token,
+        ], 200);
+    }
+
+    return response()->json([
+        'message' => 'Username or password is incorrect.',
+        'errors' => [
+            'username' => ['Username or password is incorrect.']
+        ]
+    ], 422);
+}
+```
+
+The `login()` function handles the login process for the API:
+
+1. The function first validates the incoming request data using the `validate()` method. It ensures that the `username` field is required, the `password` field has a minimum length of 6 characters, and the `remember` field is a boolean value.
+
+2. If the validation passes, it proceeds to the authentication step using `Auth::attempt()`. It attempts to authenticate the user by matching the provided `username` and `password` with the user credentials stored in the database.
+
+3. If the authentication attempt is successful (`Auth::attempt()` returns `true`), it performs the following actions:
+   - Retrieves the authenticated user using `Auth::user()` and converts it to a custom user object using the `to_user()` function. 
+   - Generates an access token for the user using `$user->createToken('Sanctum', [])->plainTextToken`. The token is associated with the 'Sanctum' token name.
+   - If the `remember` field is set to `true` and the user doesn't have a `remember_token` already, it generates a random remember token using `Str::random(40)` and saves it to the user model.
+   - Returns a JSON response with the following data:
+     - `'user'`: The serialized user object using the `UserResource` class to format the user attributes.
+     - `'remember_token'`: The remember token if it was generated, or `null` if not applicable.
+     - `'token'`: The plain text representation of the generated access token.
+
+4. If the authentication attempt fails (`Auth::attempt()` returns `false`), it returns a JSON response indicating the error:
+   - `'message'`: A message indicating that the username or password is incorrect.
+   - `'errors'`: An array of errors with the `'username'` field containing an error message.
+
+
+[🔝 Back to contents](#contents)
+
+### **login-with-web-route**
+
+`routes\web.php:`
+
+```php
+Route::get('observer/login', [ObserversAuthController::class, 'login'])->name('observer.login');
+Route::post('observer/login', [ObserversAuthController::class, 'do_login'])->name('login');
+```
+`app\Http\Controllers\ObserversAuthController.php:`
+
+```php
+public function __construct()
+{
+    $this->middleware('ob_guest')->only('login','do_login');
+    $this->middleware('ob_auth:observer')->only('logout');
+}
+```
+
+The `__construct()` method in the `ObserversAuthController` class sets up middleware groups for specific controller methods.
+
+1. `$this->middleware('ob_guest')->only('login','do_login')`:
+   - This middleware group, named `'ob_guest'`, is applied only to the `login` and `do_login` methods of the controller.
+   - The purpose of this middleware group is to allow only guest users (non-authenticated users) to access these login-related methods.
+   - It ensures that users who are already authenticated are redirected or blocked from accessing the login routes.
+
+2. `$this->middleware('ob_auth:observer')->only('logout')`:
+   - This middleware group, named `'ob_auth:observer'`, is applied only to the `logout` method of the controller.
+   - The purpose of this middleware group is to restrict access to the `logout` method to only authenticated users with the 'observer' role.
+   - It ensures that only users who are authenticated as observers can perform the logout action, providing access control based on user roles.
+
+By using these middleware configurations in the constructor, the `login` and `do_login` methods are accessible only to guest users, preventing authenticated users from accessing the login routes again. On the other hand, the `logout` method is accessible only to authenticated users with the 'observer' role, ensuring that unauthorized users cannot log out. These middleware groups help control access privileges and enhance the security and functionality of the login and logout processes in the web routes.
+
+```php
+public function login()
+{
+    $observer = Auth::guard('observer')->user();
+
+    if ($observer) {
+        return redirect()->route('observer.home');
+    }
+
+    $observers = Observer::orderBy('name')->get();
+
+    return view('observers.login')->with("observers", $observers);
+}
+```
+
+The `login()` function handles the logic for the login process in the context of observers. Here's a breakdown of the code:
+
+1. It first checks if there is already an authenticated observer user using the `Auth::guard('observer')->user()` method.
+   - If an observer user is already logged in, the function redirects them to the 'observer.home' route. This prevents authenticated users from accessing the login page again.
+
+2. If there is no authenticated observer user, it retrieves a collection of observers from the database, ordered by their names, using the `orderBy` query.
+   - The collection of observers is stored in the variable `$observers`.
+
+3. It then returns the 'observers.login' view, passing the `$observers` variable to the view as the "observers" parameter.
+   - This allows the login view to access the list of observers and present them in the login form.
+
+```php
+public function do_login(Request $request)
+{
+    $request->validate([
+        'observer_id' => ['required', 'exists:observers,id'],
+        'password' => ['required', 'string']
+    ]);
+
+    $observer = Observer::where('id', $request->observer_id)->first();
+
+    if (!$observer->password) {
+        return back()->withInput()->with('error', "المعلومات الشخصية للمراقب غير كاملة.\n يرجى إرسال صورة لوجهي الهوية الشخصية مع القسم والتوصيف الوظيفي والمرتبة العلمية على رقم واتساب التالي: <a href='https://wa.me/0985415539' target='_blank'>0985415539</a>");
+    }
+
+    if (!Hash::check($request->password, $observer->password)) {
+        return back()->withInput()->with('error', ' كلمة المرور غير صحيحة');
+    }
+
+    Auth::guard('observer')->login($observer);
+    return redirect()->route('observer.home');
+}
+```
+
+The `do_login()` function handles the submission of the login form for observers
+
+1. It first validates the request data using the `validate()` method:
+   - The `'observer_id'` field is required and must exist in the `'observers'` table.
+   - The `'password'` field is required and must be a string.
+
+2. It retrieves the observer from the database based on the provided observer ID using the `where('id', $request->observer_id)->first()` query.
+
+3. It checks if the observer's password is empty (`!$observer->password`).
+   - If the password is empty, it returns back to the login form with an error message indicating that the observer's personal information is incomplete.
+   - The error message also includes instructions to contact a specific WhatsApp number for further action.
+
+4. It uses `Hash::check($request->password, $observer->password)` to compare the provided password with the hashed password stored for the observer.
+   - If the password does not match, it returns back to the login form with an error message indicating that the password is incorrect.
+
+5. If the provided observer ID and password are valid, it logs in the observer using `Auth::guard('observer')->login($observer)`.
+   - The observer is now authenticated.
+
+6. It redirects the observer to the 'observer.home' route, indicating a successful login.
+
+The login and do_login functions work together to handle the login process for observers, ensuring proper validation, authentication, and redirecting based on the authentication status and provided credentials.
 
 [🔝 Back to contents](#contents)
 ### PermissionSeeder
@@ -340,8 +630,6 @@ public function __construct()
     $this->middleware('can:users_management');
 }
 ```
-
-The `user-permissions` component includes the `UsersController.php` file, located in the `app\Http\Controllers\Api` directory. This file contains the following code:
 
 The constructor method applies two middlewares:
 
