@@ -1,12 +1,10 @@
-Based on the information provided in the files you shared, I have analyzed the project and compiled a comprehensive description for your project idea. Here's the detailed project description:
 
 Project Title: Advanced Student Management System
 
 Overview:
-The Advanced Student Management System is a web-based application designed to streamline and automate the management of students in an educational institution. It provides a robust set of features to efficiently handle student data, such as storing student information, managing departments, tracking academic progress, and facilitating communication between students, faculty, and administrators. The system aims to enhance the overall student management process, improve data accuracy, and optimize administrative tasks.
+A web-based application designed to streamline and automate the management of students in an educational institution. It provides a robust set of features to efficiently handle student data, such as storing student information, managing departments, tracking academic progress, and facilitating communication between students, faculty, and administrators.
 
-Key Features:
-1. Authentication and Authorization: The system ensures secure access to authorized personnel through user authentication and role-based permissions. It integrates with Sanctum to handle authentication and grants specific permissions, such as "students_management," to control access to student-related functionalities.
+1. Authentication and Authorization: The system ensures secure access to authorized personnel through user authentication and role-based permissions. It integrates with Sanctum to handle authentication and grants specific permissions, such as "students_management" to control access to student-related functionalities.
 
 2. Student Listing and Filtering: The system allows users to retrieve student records based on various criteria, including department, student number, national number, study year, and current class. It utilizes Laravel's validation rules to validate the request parameters and constructs a query to fetch the relevant student data. The results are presented as a collection of Student Resources.
 
@@ -14,37 +12,24 @@ Key Features:
 
 4. Department Management: The system supports the management of departments within the educational institution. It associates students with their respective departments using the "department_id" field. Departments can be created, modified, and deleted as required, ensuring accurate categorization and organization of student data.
 
-5. Student Resource and JSON Response: The system utilizes the Student Resource class to format student data into a consistent and structured format. Student records are returned as JSON responses, making it easier to consume and process the data in various client applications.
-
-6. Docker Integration: The system includes a tutorial on obtaining a Docker container's IP address from the host machine. This guide assists developers in leveraging Docker commands and inspecting container network settings, contributing to a seamless integration and deployment process.
-
-7. NestJS Validation: The system provides a tutorial on validating nested objects using the Class Validator library within a NestJS environment. This feature enables the validation of complex data structures and ensures data integrity when handling incoming data.
-
-8. GraphQL Default Values: A tutorial explains how to set default values for input arguments in GraphQL. This feature allows certain fields or arguments to have predefined values if not explicitly provided, enhancing the flexibility and reliability of data queries.
-
-9. NVM for Node.js Version Management: The system includes a guide on using NVM (Node Version Manager) to manage multiple Node.js versions. This helps developers set the default Node.js version for their projects, ensuring compatibility and providing a seamless development experience.
-
-10. Algorithm and Code-related Articles: The system covers various algorithm-related topics, such as choosing the best algorithm for overriding GetHashCode, installing specific versions of Ruby gems, and understanding "Big O" notation. These articles provide valuable insights into algorithmic efficiency, code optimization, and best practices in different programming languages.
-
-11. React Component Development: The system includes tutorials on developing React components, such as a Wordle game using ReactJS and adding multiple classes to a component. These resources aid developers in building interactive and visually appealing user interfaces using React.
-
-12. Documentation: The project emphasizes the importance of documentation, specifically the README.md file. It provides a comprehensive guide on setting up and using the project, showcasing its features, and assisting developers in understanding the codebase and its dependencies.
-
-By combining these features, tutorials, and documentation, the Advanced Student Management System offers a powerful and user-friendly solution for educational institutions to efficiently manage student data, streamline administrative tasks, and foster effective communication within the institution. The project demonstrates proficiency in PHP (utilizing Laravel), Docker, NestJS, GraphQL, Node.js, algorithms, Ruby, and React, showcasing a diverse skill set and a deep understanding of modern web development technologies.
 ## Contents
-(contains parts of my code)
+(contains just parts of my code)
 
 [Tables and relations](#tables-and-relations)
 
-- [Authentication](#authentication)
+- ### Authentication
     - [Guards](#Guards)
       - [Guards Definition](#guards-definition)
       - [Guards building steps](#guards-building-steps)
     - [LogIn](#login)
       - [Login with API route](#login-with-api-route)
       - [Login with web route](#login-with-web-route)
-    - [Authentication](#authentication)
   
+- ### Swagger (API documentation)
+    - [l5-Swagger Definition](#l5-Swagger-definition)
+    - [l5-Swagger Usage](#l5-swagger-usage)
+    - [l5-Swagger Configuration](#l5-swagger-configuration)
+    - [l5-Swagger Example](#l5-swagger-example)
 
 [PermissionSeeder Class](#PermissionSeeder)
 
@@ -512,6 +497,299 @@ The `do_login()` function handles the submission of the login form for observers
 The login and do_login functions work together to handle the login process for observers, ensuring proper validation, authentication, and redirecting based on the authentication status and provided credentials.
 
 [🔝 Back to contents](#contents)
+
+### **l5-swagger-definition**
+
+This project integrates Swagger documentation using the L5 Swagger package. Swagger is an open-source framework that allows to design, build, document, and consume RESTful APIs. With it, I easily generated interactive API documentation for my project.
+
+![Swagger](/images/swagger.png)
+
+l5-swagger benefits:
+- Documentation: Generate comprehensive API documentation automatically, saving time and effort in writing and maintaining
+  documentation manually.
+- API Testing: The Swagger UI provides a user-friendly interface for testing API endpoints, allowing to send requests,
+  view responses, and verify the functionality of APIs.
+
+[🔝 Back to contents](#contents)
+
+### **l5-swagger-usage**
+
+- Install the package by running the following command:
+  ```cmd
+  composer require darkaonline/l5-swagger
+  ```
+- Configure the package by modifying the [config/l5-swagger.php file](#l5-swagger.php).
+  This configuration file allows to specify various settings such as the API title, routes, file paths, security definitions.
+
+- https://zircote.github.io/swagger-php/
+
+- Run the following command to generate the Swagger documentation: 
+  ```cmd
+  php artisan l5-swagger:generate
+  ```
+- Access the Swagger UI by visiting the /api/documentation route in web browser. As the photo illustrates [Here](#swagger),
+  you can explore and  interact with your API endpoints, view documentation, and test API requests.
+
+- l5-swagger example in my code:
+  [Update profile functionality](#swagger-update-profile)
+
+[🔝 Back to contents](#contents)
+
+### **l5-swagger-configuration**
+
+config\l5-swagger.php:
+This file is a configuration file for the L5 Swagger package, which is used to generate API documentation. It provides settings and options to customize the behavior and appearance of the Swagger UI, as well as specify the location of the API annotations and generated documentation files.
+
+```php
+<?php
+return [
+    'default' => 'default',
+    'documentations' => [
+        'default' => [
+            'api' => [
+                'title' => 'L5 Swagger UI',
+            ],
+
+            'routes' => [
+                /*
+                 * Route for accessing api documentation interface
+                */
+                'api' => 'api/documentation',
+            ],
+            .
+            .
+            .
+            .
+        ],
+
+        /*
+         * API security definitions. Will be generated into documentation file.
+        */
+        'securityDefinitions' => [
+            'securitySchemes' => [
+                /*
+                 * Examples of Security schemes
+                */
+                'bearer_token' => [ // Unique name of security
+                    'type' => 'apiKey', // Valid values are "basic", "apiKey" or "oauth2".
+                    'description' => 'Enter token in format (Bearer <token>)',
+                    'name' => 'Authorization', // The name of the header or query parameter to be used.
+                    'in' => 'header', // The location of the API key. Valid values are "query" or "header".
+                ],
+
+            ],
+          .
+          .
+          .
+    ],
+    ]
+];
+```
+The 'api' key under the 'default' group specifies the API title to be displayed in the Swagger UI.
+
+The 'routes' key under the 'default' group defines the routes used to access the API documentation interface.
+The 'api' key under the 'routes' key specifies the route for accessing the API documentation interface.
+
+The 'annotations' key specifies the absolute paths to directories containing the Swagger annotations.
+
+
+Under the 'paths' key within 'defaults', you can specify the absolute paths for storing parsed annotations and exporting views.
+The 'base' key defines the API's base path.
+
+The 'securityDefinitions' key defines security schemes and securities for the API documentation.
+The 'securitySchemes' key under 'securityDefinitions' specifies security schemes, such as 'bearer_token'.
+The 'security' key under 'securityDefinitions' allows you to define security examples.
+
+this part:
+```php
+        'bearer_token' => [ // Unique name of security
+            'type' => 'apiKey', // Valid values are "basic", "apiKey" or "oauth2".
+            'description' => 'Enter token in format (Bearer <token>)',
+            'name' => 'Authorization', // The name of the header or query parameter to be used.
+            'in' => 'header', // The location of the API key. Valid values are "query" or "header".
+        ],
+```
+Is show at the top right of swagger UI interface. It responsable to authenticate API requests using a bearer token.
+
+'type' => 'apiKey': This specifies the type of security scheme, which in this case is an API key. Other valid values for the type are 'basic' for basic authentication and 'oauth2' for OAuth2 authentication.
+
+'description' => 'Enter token in format (Bearer <token>)': This provides a description of how the token should be provided. It instructs the user to enter the token in the format "Bearer <token>", indicating that the word "Bearer" should be included before the actual token value.
+
+'name' => 'Authorization': This specifies the name of the header or query parameter that should be used to send the API key. In this case, the key is expected to be sent in the 'Authorization' header.
+
+'in' => 'header': This indicates the location of the API key, which is in the header of the API request.
+
+### **l5-swagger-controller**
+
+app\Http\Controllers\Controller.php:
+
+```php
+/**
+ * @OA\Info(title="API TICKETS", version="1.0")
+ *
+ *  @OA\Server(
+ *      url="https://biut.rewardszone.net/api",
+ *  )
+ *  @OA\Server(
+ *      url="http://127.0.0.1:8000/api",
+ *  )
+ *
+ * @OAS\SecurityScheme(
+ *      securityScheme="bearer_token",
+ *      type="http",
+ *      scheme="bearer"
+ * )
+*/
+
+class Controller extends BaseController
+{
+    use AuthorizesRequests, ValidatesRequests;
+}
+```
+Swagger annotations provided using the @OA and @OAS tags. These annotations are used by the L5 Swagger package to generate API documentation.
+
+- @OA\Info: This annotation is used to provide general information about the API, such as the title and version.
+- @OA\Server: These annotations define the server URLs where the API is hosted. In this case,
+  there are two servers specified: https://biut.rewardszone.net/api and http://127.0.0.1:8000/api. These URLs represent the base URLs for the API endpoints.
+- @OAS\SecurityScheme: This annotation defines a security scheme named 'bearer_token'. It specifies that the type of authentication
+  is HTTP, and the scheme used is Bearer token authentication. This corresponds to the security scheme configuration defined in the
+  L5 Swagger configuration file.
+
+[🔝 Back to contents](#contents)
+
+### **l5-swagger-example**
+
+app\Http\Controllers\AuthController.php:
+
+```php
+/**
+ * @OA\Post(
+    * path="/user",
+    * description="Edit your profile",
+    *  tags={"Auth"},
+    *  security={{"bearer_token": {} }},
+    *   @OA\RequestBody(
+    *       required=true,
+    *       @OA\MediaType(
+    *           mediaType="multipart/form-data",
+    *           @OA\Schema(
+    *              required={"name","email","birth","id_number","type"},
+    *              @OA\Property(property="name", type="string"),
+    *              @OA\Property(property="email", type="email"),
+    *              @OA\Property(property="birth", type="string"),
+    *              @OA\Property(property="id_number", type="string"),
+    *              @OA\Property(property="type", type="string",enum={"citizen","resident","tourist"}),
+    *              @OA\Property(property="nationality_id", type="integer"),
+    *              @OA\Property(property="image", type="file"),
+    *              @OA\Property(property="delete_image", type="boolean",enum={"1","0"}),
+    *              @OA\Property(property="_method", type="string", format="string", example="PUT"),
+    *           )
+    *       )
+    *   ),
+    *     @OA\Response(
+    *         response="200",
+    *    description="Success"
+    *     ),
+    * )
+*/
+
+public function update_my_profile(Request $request)
+{
+    $request->validate([
+        'name'            => ['required','string'],
+        'email'           => ['required','email',Rule::unique('users')->ignore(to_user(Auth::user())->id)],
+        'birth'           => ['required','string'],
+        'id_number'       => ['required','string'],
+        'type'            => ['required','in:citizen,resident,tourist'],
+        'nationality_id'  => ['required_if:type,resident','required_if:type,tourist','exists:countries,id'],
+        'image'           => ['image'],
+        'delete_image'    => ['boolean'],
+
+    ]);
+
+    $user = to_user(Auth::user());
+    if($request->type == 'citizen')
+        $nationality_id = 193;
+    else
+        $nationality_id = $request->nationality_id;
+
+    $image = $user->image;
+    if($request->delete_image)
+    {
+        delete_file_if_exist($image);
+        $image = null;
+    }
+    else if($request->hasFile('image'))
+    {
+        delete_file_if_exist($image);
+        $image = upload_file($request->image,'profile_image','profile_images');
+    }
+
+    $user->update([
+        'name'           => $request->name,
+        'email'          => $request->email,
+        'code'           => $request->code,
+        'birth'          => $request->birth,
+        'id_number'      => $request->id_number,
+        'type'           => $request->type,
+        'nationality_id' => $nationality_id,
+        'image'          => $image,
+    ]);
+
+    $_user = (new UserResource($user))->toArray($request);
+    $_user['reservations_count'] = $user->reservations_count();
+    $_user['user_rate'] = $user->rate;
+    $_user['count_of_blockers'] = $user->count_of_blockers();
+    return response()->json($_user,200);
+
+}
+```
+The code between /** */ describes a specific POST API endpoint for editing the user's profile depending on l5-swagger documentation.
+
+Here is a breakdown of the annotations used in this code:
+
+- @OA\Post: This annotation indicates that this API endpoint is an HTTP POST request.
+
+- path="/user": This specifies the URL path for this API endpoint, which is /user.
+  The full URL for this endpoint would depend on the base URL that I defined in [app\Http\Controllers\Controller.php](#l5-swagger-controller) file.
+
+- description="Edit your profile": This provides a brief description of the purpose of this API endpoaint,
+  which is to edit the user's profile.
+
+- tags={"Auth"}: This assigns the API endpoint to a specific tag or category. In this case,
+  it is associated with the "Auth" tag, which typically indicates authentication-related endpoints.
+
+- security={{"bearer_token": {} }}: This specifies the security requirement for this API endpoint.
+  It indicates that the bearer_token security scheme, which was defined earlier in [configuration file](#l5-swagger.php), should be applied to this endpoint. This means that the user needs to provide a valid bearer token in the request header for authentication.
+
+- @OA\RequestBody: This annotation indicates that the API endpoint expects a request body containing data.
+
+- required=true: This specifies that the request body is required for this API endpoint.
+
+- @OA\MediaType: This annotation specifies the media type of the request body, which is multipart/form-data.
+  This indicates that the request body may contain form data.
+
+- @OA\Schema: This defines the schema or structure of the request body.
+
+- required={"name","email","birth","id_number","type"}: This specifies that the properties name, email, birth, id_number, and type
+  are required in the request body.
+
+- @OA\Property: These annotations define the properties of the request body schema. Each property is specified with its name, type, 
+  and additional constraints. For example, name is of type string, email is of type email, and type is of type string with an enum constraint allowing values of "citizen", "resident", or "tourist".
+
+- @OA\Response: This annotation describes the response that the API endpoint will return.
+
+- response="200": This indicates that the response has a status code of 200, which typically represents a successful request.
+
+- description="Success": This provides a brief description of the response, indicating that it represents a successful operation.
+
+This function called from this route (with PUT method) that I defined into *routes\api.php* file:
+```php
+Route::put('/user', [AuthController::class, 'update_my_profile']);
+```
+
+[🔝 Back to contents](#contents)
+
 ### PermissionSeeder
 
 `database\seeders\PermissionSeeder.php`
