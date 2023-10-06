@@ -6,15 +6,17 @@ It includes organizing the examination schedule, examination periods, examinatio
 The project ensures secure access to authorized personnel through user authentication and role-based permissions.
 It can be managed by the college's administrative team or by monitors, as each user has specific characteristics.
 
+
 > :warning: **Warning:** This contents below ↓ contains just parts of my code.
 >                        You can access my full project files by clone it from my GitLab repository
 >                        (requires asking for my permissions  to grant you access to it)
 >                        https://gitlab.com/skandar.s1998/moraqabat 
+
 ## Contents
 
 [Tables and relations](#tables-and-relations)
 
-- # Authentication
+- ### Authentication
     - [Guards](#Guards)
       - [Guards Definition](#guards-definition)
       - [Guards building steps](#guards-building-steps)
@@ -22,7 +24,7 @@ It can be managed by the college's administrative team or by monitors, as each u
       - [Login with API route](#login-with-api-route)
       - [Login with web route](#login-with-web-route)
   
-- # Swagger (API documentation)
+- ### Swagger (API documentation)
     - [l5-Swagger Definition](#l5-Swagger-definition)
     - [l5-Swagger Usage](#l5-swagger-usage)
     - [l5-Swagger Configuration](#l5-swagger-configuration)
@@ -47,7 +49,7 @@ It can be managed by the college's administrative team or by monitors, as each u
 
 ![Logo](/images/tables-relations.png)
 
-<a href="/moraqabat.pdf" target="_blank">Open PDF Document</a>
+For more details about the content of the tables <a href="/moraqabat.pdf" target="_blank">Click here</a>
 
 [🔝 Back to contents](#contents)
 
@@ -74,7 +76,7 @@ Here are the key aspects of guards and their role in web application security:
 
 The overall steps for building guards:
 
-1. [Configure Guards](#configure-guards): Define the guards in the `config/auth.php` configuration file. Specify the driver (e.g., session, token, or passport) and associate each guard with an authentication provider.
+1. [Guards configuration](#guards-configuration): Define the guards in the `config/auth.php` configuration file. Specify the driver (e.g., session, token, or passport) and associate each guard with an authentication provider.
 
 2. [Implement Guard-Specific Middleware](#guards-middlewares): For custom logic for the guards, create guard-specific middleware classes. Middleware intercepts requests and can be used for authentication, authorization, or any other processing before the request reaches the intended route or controller.
 
@@ -86,7 +88,7 @@ The overall steps for building guards:
 
 [🔝 Back to contents](#contents)
 
-### **configure-guards**
+### **guards-configuration**
 
 `config\auth.php:`
 
@@ -164,6 +166,10 @@ Providers I defined:
 
 ### **guards-middlewares**
 
+Using this command: 
+```cmd
+php artisan make:middleware
+``` 
 I defined two middlewares, ObservationsGuest and ObservationsAuth.
 
 `app\Http\Middleware\ObservationsGuest.php:`
