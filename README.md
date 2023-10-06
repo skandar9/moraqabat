@@ -1,23 +1,20 @@
 
-Project Title: Advanced Student Management System
+Project overview:
 
-Overview:
-A web-based application designed to streamline and automate the management of students in an educational institution. It provides a robust set of features to efficiently handle student data, such as storing student information, managing departments, tracking academic progress, and facilitating communication between students, faculty, and administrators.
+A website for managing and organizing the examination process at the Faculty of Mechanical and Electrical Engineering at Tishreen University, regarding employees and students
+It includes organizing the examination schedule, examination periods, examination halls, materials, and distributing observers according to their tasks on examination days and halls, taking into account the departments in the college.
+The project ensures secure access to authorized personnel through user authentication and role-based permissions.
+It can be managed by the college's administrative team or by monitors, as each user has specific characteristics.
 
-1. Authentication and Authorization: The system ensures secure access to authorized personnel through user authentication and role-based permissions. It integrates with Sanctum to handle authentication and grants specific permissions, such as "students_management" to control access to student-related functionalities.
-
-2. Student Listing and Filtering: The system allows users to retrieve student records based on various criteria, including department, student number, national number, study year, and current class. It utilizes Laravel's validation rules to validate the request parameters and constructs a query to fetch the relevant student data. The results are presented as a collection of Student Resources.
-
-3. Student Creation and Update: Users can create new student profiles by providing necessary information such as name, contact details, department, and other relevant data. The system validates the input using Laravel's validation rules and saves the student details to the database. Existing student records can also be updated using similar validation and update mechanisms.
-
-4. Department Management: The system supports the management of departments within the educational institution. It associates students with their respective departments using the "department_id" field. Departments can be created, modified, and deleted as required, ensuring accurate categorization and organization of student data.
-
+> :warning: **Warning:** This contents below ↓ contains just parts of my code.
+>                        You can access my full project files by clone it from my GitLab repository
+>                        (requires asking for my permissions  to grant you access to it)
+>                        https://gitlab.com/skandar.s1998/moraqabat 
 ## Contents
-(contains just parts of my code)
 
 [Tables and relations](#tables-and-relations)
 
-- ### Authentication
+- # Authentication
     - [Guards](#Guards)
       - [Guards Definition](#guards-definition)
       - [Guards building steps](#guards-building-steps)
@@ -25,7 +22,7 @@ A web-based application designed to streamline and automate the management of st
       - [Login with API route](#login-with-api-route)
       - [Login with web route](#login-with-web-route)
   
-- ### Swagger (API documentation)
+- # Swagger (API documentation)
     - [l5-Swagger Definition](#l5-Swagger-definition)
     - [l5-Swagger Usage](#l5-swagger-usage)
     - [l5-Swagger Configuration](#l5-swagger-configuration)
