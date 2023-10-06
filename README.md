@@ -16,7 +16,7 @@ It can be managed by the college's administrative team or by monitors, as each u
 
 [Tables and relations](#tables-and-relations)
 
-- ## [Authentication]
+- Authentication
     - [Guards](#Guards)
       - [Guards Definition](#guards-definition)
       - [Guards building steps](#guards-building-steps)
@@ -24,7 +24,7 @@ It can be managed by the college's administrative team or by monitors, as each u
       - [Login with API route](#login-with-api-route)
       - [Login with web route](#login-with-web-route)
   
-- ### Swagger (API documentation)
+- cSwagger (API documentation)
     - [l5-Swagger Definition](#l5-Swagger-definition)
     - [l5-Swagger Usage](#l5-swagger-usage)
     - [l5-Swagger Configuration](#l5-swagger-configuration)
