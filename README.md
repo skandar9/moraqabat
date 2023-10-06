@@ -13,6 +13,7 @@ It can be managed by the college's administrative team or by monitors, as each u
 >                        https://gitlab.com/skandar.s1998/moraqabat 
 
 ## Contents
+(contains parts of my code)
 
 [Tables and relations](#tables-and-relations)
 
