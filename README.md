@@ -32,17 +32,19 @@ It can be managed by the college's administrative team or by monitors, as each u
 
 [PermissionSeeder Class](#PermissionSeeder)
 
-[Add permission to a specific role](#role-permission)
+[Add permission to a specific role](#add_role_permission)
 
 [Get user permissions](#user-permissions)
 
 [Add teacher to a specific material](#add-teacher)
 
+[Relation between teachers & materials](#teachers-&-materials-relation)
+
 [Store observation](#store-observation)
 
 [Opened halls](#opened-halls)
 
-[Students list](#students)
+[Students list](#students-list)
 
 
 ### **tables-and-relations**
@@ -521,11 +523,12 @@ l5-swagger benefits:
   ```cmd
   composer require darkaonline/l5-swagger
   ```
-- Configure the package by modifying the [config/l5-swagger.php file](#l5-swagger.php).
+- Configure the package by modifying the [config/l5-swagger.php](#l5-swagger-configuration).
   This configuration file allows to specify various settings such as the API title, routes, file paths, security definitions.
 
-- https://zircote.github.io/swagger-php/
-
+- Generate OpenAPI documentation for RESTful APIs that defined, and add Swagger-PHP annotations
+  depending on https://zircote.github.io/swagger-php/ website that provides documentation and resources for the Swagger-PHP library.
+   
 - Run the following command to generate the Swagger documentation: 
   ```cmd
   php artisan l5-swagger:generate
@@ -540,7 +543,8 @@ l5-swagger benefits:
 
 ### **l5-swagger-configuration**
 
-config\l5-swagger.php:
+`config\l5-swagger.php`
+
 This file is a configuration file for the L5 Swagger package, which is used to generate API documentation. It provides settings and options to customize the behavior and appearance of the Swagger UI, as well as specify the location of the API annotations and generated documentation files.
 
 ```php
@@ -622,9 +626,9 @@ Is show at the top right of swagger UI interface. It responsable to authenticate
 
 'in' => 'header': This indicates the location of the API key, which is in the header of the API request.
 
-### **l5-swagger-controller**
+### **l5-swagger-annotations-in-Controller**
 
-app\Http\Controllers\Controller.php:
+`app\Http\Controllers\Controller.php:`
 
 ```php
 /**
@@ -754,9 +758,10 @@ Here is a breakdown of the annotations used in this code:
 - @OA\Post: This annotation indicates that this API endpoint is an HTTP POST request.
 
 - path="/user": This specifies the URL path for this API endpoint, which is /user.
-  The full URL for this endpoint would depend on the base URL that I defined in [app\Http\Controllers\Controller.php](#l5-swagger-controller) file.
+  The full URL for this endpoint would depend on the base URL that I defined in [app\Http\Controllers\Controller.php](#l5-swagger-annotations-in-Controller) file.
 
-- description="Edit your profile": This provides a brief description of the purpose of this API endpoaint,
+- description="Edit your profile": This provides a brief description of the purpose of this
+  API endpoint,
   which is to edit the user's profile.
 
 - tags={"Auth"}: This assigns the API endpoint to a specific tag or category. In this case,
@@ -859,7 +864,7 @@ The code performs the following actions:
 
 [🔝 Back to contents](#contents)
 
-### **role-permission**
+### **add_role_permission**
 
 `app\Http\Controllers\PermissionsController.php`
 
@@ -944,7 +949,7 @@ Description of code lines:
 
 ### **add-teacher**
 
-#### app\Http\Controllers\Api\MaterialsController.php:
+`app\Http\Controllers\Api\MaterialsController.php`
 
 ```php
 public function add_teacher(Material $material, Request $request)
@@ -965,6 +970,7 @@ public function add_teacher(Material $material, Request $request)
 
 The `add_teacher` method is used to manage the relationship between materials and teachers, allowing materials to have multiple teachers.
 
+### **teachers-&-materials-relation**
 
 `app\Models\Material.php`
 
@@ -1173,7 +1179,7 @@ Finally, the sorted and structured `$results` array is returned, providing infor
 
 [🔝 Back to contents](#contents)
 
-### **students**
+### **students-list**
 
 `app\Http\Controllers\Api\StudentController.php`
 
