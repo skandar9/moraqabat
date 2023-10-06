@@ -13,7 +13,7 @@ It can be managed by the college's administrative team or by monitors, as each u
 >                        https://gitlab.com/skandar.s1998/moraqabat 
 
 ## Contents
-(contains parts of my code)
+(contains descriptive parts of my code)
 
 
 [Tables and relations](#tables-and-relations)
@@ -637,9 +637,6 @@ Is show at the top right of swagger UI interface. It responsable to authenticate
  * @OA\Info(title="API TICKETS", version="1.0")
  *
  *  @OA\Server(
- *      url="https://biut.rewardszone.net/api",
- *  )
- *  @OA\Server(
  *      url="http://127.0.0.1:8000/api",
  *  )
  *
@@ -668,89 +665,87 @@ Swagger annotations provided using the @OA and @OAS tags. These annotations are 
 
 ### **l5-swagger-example**
 
-app\Http\Controllers\AuthController.php:
+![Logo](/images/update-observer(swagger).png)
+![Logo](/images/update-observer(swagger)(2).png)
+
+`app\Http\Controllers\AuthController.php`
 
 ```php
 /**
  * @OA\Post(
-    * path="/user",
-    * description="Edit your profile",
-    *  tags={"Auth"},
+    * path="/api/observers/{id}",
+    * description="Edit specific observer",
+    *   @OA\Parameter(
+    *     in="path",
+    *     name="id",
+    *     required=true,
+    *     @OA\Schema(type="string"),
+    *   ),
+    *  tags={"Observers"},
     *  security={{"bearer_token": {} }},
     *   @OA\RequestBody(
     *       required=true,
     *       @OA\MediaType(
     *           mediaType="multipart/form-data",
     *           @OA\Schema(
-    *              required={"name","email","birth","id_number","type"},
     *              @OA\Property(property="name", type="string"),
-    *              @OA\Property(property="email", type="email"),
-    *              @OA\Property(property="birth", type="string"),
-    *              @OA\Property(property="id_number", type="string"),
-    *              @OA\Property(property="type", type="string",enum={"citizen","resident","tourist"}),
-    *              @OA\Property(property="nationality_id", type="integer"),
-    *              @OA\Property(property="image", type="file"),
-    *              @OA\Property(property="delete_image", type="boolean",enum={"1","0"}),
+    *              @OA\Property(property="department_id", type="integer"),
+    *              @OA\Property(property="position_id", type="integer"),
+    *              @OA\Property(property="rank", type="string", enum={"phd","eng","other"}),
+    *              @OA\Property(property="birth", type="number"),
+    *              @OA\Property(property="national_number", type="string"),
+    *              @OA\Property(property="ob_type", type="string",enum={"boss","secretary","observer","assistant"}),
+    *              @OA\Property(property="ob_active", type="boolean",enum={0,1}),
+    *              @OA\Property(property="ob_ratio", type="float"),
+    *              @OA\Property(property="ob_count", type="integer"),
+    *              @OA\Property(property="ob_finished", type="integer"),
+    *              @OA\Property(property="ob_remain", type="integer"),
+    *              @OA\Property(property="note", type="string"),
     *              @OA\Property(property="_method", type="string", format="string", example="PUT"),
     *           )
     *       )
     *   ),
     *     @OA\Response(
     *         response="200",
-    *    description="Success"
+    *         description="Success"
     *     ),
     * )
 */
 
-public function update_my_profile(Request $request)
+public function update(Request $request, Observer $observer)
 {
+    $current_date = Carbon::now();
     $request->validate([
-        'name'            => ['required','string'],
-        'email'           => ['required','email',Rule::unique('users')->ignore(to_user(Auth::user())->id)],
-        'birth'           => ['required','string'],
-        'id_number'       => ['required','string'],
-        'type'            => ['required','in:citizen,resident,tourist'],
-        'nationality_id'  => ['required_if:type,resident','required_if:type,tourist','exists:countries,id'],
-        'image'           => ['image'],
-        'delete_image'    => ['boolean'],
-
+        'name'              => ['string'],
+        'department_id'     => ['exists:departments,id'],
+        'position_id'       => ['exists:positions,id'],
+        'rank'              => ['in:phd,eng,other'],
+        'birth'             => ['integer', 'min:1900', 'max:' . $current_date->year],
+        'national_number'   => [Rule::unique('observers', 'national_number')->ignore($observer->id)],
+        'ob_type'           => ['in:boss,secretary,observer,assistant'],
+        'ob_active'         => ['boolean'],
+        'ob_ratio'          => ['numeric', 'min:0', 'max:1'],
+        'ob_count'          => ['integer'],
+        'ob_finished'       => ['integer'],
+        'ob_remain'         => ['integer'],
+        'note'              => ['string'],
     ]);
-
-    $user = to_user(Auth::user());
-    if($request->type == 'citizen')
-        $nationality_id = 193;
-    else
-        $nationality_id = $request->nationality_id;
-
-    $image = $user->image;
-    if($request->delete_image)
-    {
-        delete_file_if_exist($image);
-        $image = null;
-    }
-    else if($request->hasFile('image'))
-    {
-        delete_file_if_exist($image);
-        $image = upload_file($request->image,'profile_image','profile_images');
-    }
-
-    $user->update([
-        'name'           => $request->name,
-        'email'          => $request->email,
-        'code'           => $request->code,
-        'birth'          => $request->birth,
-        'id_number'      => $request->id_number,
-        'type'           => $request->type,
-        'nationality_id' => $nationality_id,
-        'image'          => $image,
+    $observer->update([
+        'name'              => $request->name ?? $observer->name,
+        'department_id'     => $request->department_id ?? $observer->department_id,
+        'position_id'       => $request->position_id ?? $observer->position_id,
+        'rank'              => $request->rank ?? $observer->rank,
+        'birth'             => $request->birth ?? $observer->birth,
+        'national_number'   => $request->national_number ?? $observer->national_number,
+        'ob_type'           => $request->ob_type ?? $observer->ob_type,
+        'ob_active'         => $request->ob_active ?? $observer->ob_active,
+        'ob_ratio'          => $request->ob_ratio ?? $observer->ob_ratio,
+        'ob_count'          => $request->ob_count ?? $observer->ob_count,
+        'ob_finished'       => $request->ob_finished ?? $observer->ob_finished,
+        'ob_remain'         => $request->ob_remain ?? $observer->ob_remain,
+        'note'              => $request->note ?? $observer->note,
     ]);
-
-    $_user = (new UserResource($user))->toArray($request);
-    $_user['reservations_count'] = $user->reservations_count();
-    $_user['user_rate'] = $user->rate;
-    $_user['count_of_blockers'] = $user->count_of_blockers();
-    return response()->json($_user,200);
-
+    return response()->json(new ObserverResource($observer), 200);
 }
 ```
 The code between /** */ describes a specific POST API endpoint for editing the user's profile depending on l5-swagger documentation.
@@ -759,15 +754,19 @@ Here is a breakdown of the annotations used in this code:
 
 - @OA\Post: This annotation indicates that this API endpoint is an HTTP POST request.
 
-- path="/user": This specifies the URL path for this API endpoint, which is /user.
+- path="/api/observers/{id}": This specifies the URL path for this API endpoint,
   The full URL for this endpoint would depend on the base URL that I defined in [app\Http\Controllers\Controller.php](#l5-swagger-annotations-in-Controller) file.
 
-- description="Edit your profile": This provides a brief description of the purpose of this
+- description="Edit specific observer": This provides a brief description of the purpose of this
   API endpoint,
-  which is to edit the user's profile.
+  which is to edit a specific observer's details.
 
-- tags={"Auth"}: This assigns the API endpoint to a specific tag or category. In this case,
-  it is associated with the "Auth" tag, which typically indicates authentication-related endpoints.
+- @OA\Parameter: This annotation defines a parameter that is part of the URL path.
+  In this case, the id parameter represents the unique identifier of the observer being edited.
+  
+- @OA\Schema: This defines the schema or structure of the request body.
+
+- tags={"Observers"}: This assigns the API endpoint to the "Observers" tag or category.
 
 - security={{"bearer_token": {} }}: This specifies the security requirement for this API endpoint.
   It indicates that the bearer_token security scheme, which was defined earlier in [configuration file](#l5-swagger.php), should be applied to this endpoint. This means that the user needs to provide a valid bearer token in the request header for authentication.
@@ -776,13 +775,9 @@ Here is a breakdown of the annotations used in this code:
 
 - required=true: This specifies that the request body is required for this API endpoint.
 
-- @OA\MediaType: This annotation specifies the media type of the request body, which is multipart/form-data.
+- @OA\MediaType: This annotation specifies the media type of the request body, which is
+  multipart/form-data.
   This indicates that the request body may contain form data.
-
-- @OA\Schema: This defines the schema or structure of the request body.
-
-- required={"name","email","birth","id_number","type"}: This specifies that the properties name, email, birth, id_number, and type
-  are required in the request body.
 
 - @OA\Property: These annotations define the properties of the request body schema. Each property is specified with its name, type, 
   and additional constraints. For example, name is of type string, email is of type email, and type is of type string with an enum constraint allowing values of "citizen", "resident", or "tourist".
@@ -795,7 +790,7 @@ Here is a breakdown of the annotations used in this code:
 
 This function called from this route (with PUT method) that I defined into *routes\api.php* file:
 ```php
-Route::put('/user', [AuthController::class, 'update_my_profile']);
+Route::apiResource('observers',ObserversController::class);
 ```
 
 [🔝 Back to contents](#contents)
