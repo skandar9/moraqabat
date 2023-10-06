@@ -665,6 +665,7 @@ Swagger annotations provided using the @OA and @OAS tags. These annotations are 
 
 ### **l5-swagger-example**
 
+Update observer data 
 ![Logo](/images/update-observer(swagger).png)
 ![Logo](/images/update-observer(swagger)(2).png)
 
