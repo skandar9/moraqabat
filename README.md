@@ -16,7 +16,7 @@ It can be managed by the college's administrative team or by monitors, as each u
 
 [Tables and relations](#tables-and-relations)
 
-- ### Authentication
+- ## [Authentication]
     - [Guards](#Guards)
       - [Guards Definition](#guards-definition)
       - [Guards building steps](#guards-building-steps)
