@@ -9,7 +9,7 @@ It can be managed by the college's administrative team or by monitors, as each u
 
 > :warning: **Warning:** This contents below ↓ contains just parts of my code.
 >                        You can access my full project files by clone it from my GitLab repository
->                        (requires asking for my permissions  to grant you access to it)
+>                        (requires asking for my permissions  to grant you access to it):
 >                        https://gitlab.com/skandar.s1998/moraqabat 
 
 ## Contents
@@ -51,7 +51,7 @@ It can be managed by the college's administrative team or by monitors, as each u
 
 ### **tables-and-relations**
 
-![Logo](/images/tables-relations.png)
+![Logo](/images/tables.png)
 
 For more details about the content of the tables <a href="/moraqabat.pdf" target="_blank">Click here</a>
 
@@ -653,6 +653,7 @@ class Controller extends BaseController
 }
 ```
 Swagger annotations provided using the @OA and @OAS tags. These annotations are used by the L5 Swagger package to generate API documentation.
+The annotations are used to document the API endpoints and provide additional information such as request and response schemas, parameters, and authentication requirements.
 
 - @OA\Info: This annotation is used to provide general information about the API, such as the title and version.
 - @OA\Server: These annotations define the server URLs where the API is hosted. In this case,
