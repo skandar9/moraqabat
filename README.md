@@ -18,6 +18,8 @@ It can be managed by the college's administrative team or by monitors, as each u
 
 [Tables and relations](#tables-and-relations)
 
+[Project actions and progress(graph)](#project-graph)
+
 - [Authentication](#Authentication)
     - [Guards](#Guards)
       - [Guards Definition](#guards-definition)
@@ -57,6 +59,15 @@ For more details about the content of the tables <a href="/moraqabat.pdf" target
 
 [🔝 Back to contents](#contents)
 
+### **project-graph**
+
+This graph diagram represents the actions and progress for the project.
+
+![App Logo](/images/graph(1).png)
+![App Logo](/images/graph(2).png)
+![App Logo](/images/graph(3).png)
+
+[🔝 Back to contents](#contents)
 
 ### **guards-definition**
 
